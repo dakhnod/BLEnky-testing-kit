@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: run test",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-a", "CD:A4:6B:CE:24:70",
+                "-a", "C2:F1:5E:8E:A6:4D",
+                "-a", "F2:B4:78:83:18:E1",
+                "-p", "1",
+                "-p", "2"
+            ]
+        }
+    ]
+}
