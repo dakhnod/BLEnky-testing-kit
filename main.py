@@ -244,8 +244,8 @@ class Tester():
 async def main():
     parser = argparse.ArgumentParser('BLEnky testing kit')
     parser.add_argument('--address', '-a', type=str, required=True, help='BLE MAC address / Address UUID to connect to')
-    parser.add_argument('--input-pin', '-i', type=int, required=True, help='One or multiple input pins on the PI connected to the uC', action='append')
-    parser.add_argument('--output-pin', '-o', type=int, required=True, help='One or multiple output pins on the PI connected to the uC', action='append')
+    parser.add_argument('--input-pin', '-i', type=int, required=True, help='One or multiple input pins on the PI connected to the uC', nargs='+')
+    parser.add_argument('--output-pin', '-o', type=int, required=True, help='One or multiple output pins on the PI connected to the uC', nargs='+')
     args = parser.parse_args()
 
     gpioLayer = RPIGPIOLayer(args.input_pin, args.output_pin)
