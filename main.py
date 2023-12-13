@@ -141,7 +141,10 @@ class BlenkyLayer(IOLayer):
     async def get_input(self, index):
         try:
             reported = await asyncio.wait_for(self.ble_input_future, 5)
-            return reported[index]
+            try:
+                return reported[index]
+            except IndexError:
+                return None
         except asyncio.exceptions.TimeoutError:
             self.logger.error('Error waiting for input notification')
             return None
