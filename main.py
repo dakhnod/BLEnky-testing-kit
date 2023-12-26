@@ -7,6 +7,8 @@ import atexit
 import abc
 import inspect
 import logging
+import time
+import sys
 
 logging.basicConfig(level=logging.INFO)
 logging.StreamHandler.terminator = ''
@@ -221,13 +223,16 @@ class Tester():
                             print()
                             test_count[1] += 1
         finally:
-            for layer in self.layers:
-                await self.call_func(layer.uninit)
+            pass
+            # for layer in self.layers:
+            #     await self.call_func(layer.uninit)
         if test_count[1] == 0:
             print_color('green')
         else:
             print_color('red')
         self.logger.info(f'Tests successful: %d, failed: %d', *test_count)
+        if test_count[1] > 0:
+            sys.exit(1)
         print_color()
         print()
 
@@ -257,6 +262,87 @@ async def main():
     tester = Tester(gpioLayer, bleLayer)
     await tester.init()
     await tester.run()
+
+    async def test_inputs_delayed(target_states, timeout_min_ms, timeout_max_ms):
+        timeout_min = timeout_min_ms / 1000
+        timeout_max = timeout_max_ms / 1000
+        time_start = time.time()
+        time_delta = 0
+
+        while gpioLayer.get_inputs() != target_states:
+            time_delta = time.time() - time_start
+            if time_delta > timeout_max:
+                raise TimeoutError(f'runtime slept for too long ({int(time_delta * 1000)} > {timeout_max_ms}) inputs: {gpioLayer.get_inputs()}')
+            time.sleep(0.0005)
+        if time_delta < timeout_min:
+            raise TimeoutError(f'runtime slept for too short ({int(time_delta * 1000)} < {timeout_min_ms}) inputs: {gpioLayer.get_inputs()}')
+        return int(time_delta * 1000)
+    
+    await bleLayer.set_outputs((0, 0, 0, 0))
+    gpioLayer.set_outputs((0, 0, 0, 0))
+
+    logger = logging.getLogger('gpioASM')
+    
+    logger.info('uploading gpioASM code...')
+    payload = [128,0,32,232,7,1,85,32,100,1,1,32,100,1,4,32,100,1,16,32,100,1,64,32,100,1,17,32,100,1,68,176,23,9,32,200,1,1,17,32,200,1,1,68,176,34,9,49,85,1,85,49,0,1,0]
+    print_color('green')
+    print('OK')
+    print_color()
+
+    index = 0
+    while len(payload) > 19:
+        await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [(0b10000000 | index)] + payload[:19])
+        index += 1
+        payload = payload[19:]
+    await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [index] + payload)
+
+    logger.info('synchronizing...')
+    time_taken = await test_inputs_delayed((1, 1, 1, 1), 0, 1000)
+    print_color('green')
+    print('OK')
+    print_color()
+
+    logger.info('running tests...')
+    print()
+
+    targets = [
+        ((1, 0, 0, 0), 100),
+        ((0, 1, 0, 0), 100),
+        ((0, 0, 1, 0), 100),
+        ((0, 0, 0, 1), 100)
+    ]
+
+    for timeout in (100, 200):
+        for _ in range(10):
+            targets.append(((1, 0, 1, 0), timeout))
+            targets.append(((0, 1, 0, 1), timeout))
+
+    for (states, timeout) in targets:
+        logger.info(f'awaiting {states}...')
+        time_taken = await test_inputs_delayed(states, timeout - 5, timeout + 3)
+        print_color('green')
+        print(f'OK, took {time_taken}ms')
+        print_color()
+
+    for states in ((1, 1, 1, 1), (0, 0, 0, 0)):
+        logger.info('waiting for outputs to stay constant...')
+        try:
+            await test_inputs_delayed(states, 0, 5000)
+            raise RuntimeError('gpioASM engine did not wait at sleep_match_all command...')
+        except TimeoutError:
+            print_color('green')
+            print('OK')
+            print_color()
+        logger.info('triggering sleep_match_all command by setting outputs...')
+        gpioLayer.set_outputs(states)
+        time_taken = await test_inputs_delayed(states, 0, 5)
+        print_color('green')
+        print(f'OK, took {time_taken}ms to react')
+        print_color()
+    print_color('green')
+    logger.info('gpioASM script fully run and traced.')
+    print_color()
+    print()
 
 if __name__ == '__main__':
     asyncio.run(main())

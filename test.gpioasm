@@ -1,0 +1,35 @@
+
+sleep_ms 1000
+write_digital 1111
+sleep_ms 100
+write_digital 1000
+sleep_ms 100
+write_digital 0100
+sleep_ms 100
+write_digital 0010
+sleep_ms 100
+write_digital 0001
+
+label start_100
+
+sleep_ms 100
+write_digital 1010
+sleep_ms 100
+write_digital 0101
+
+jump_count start_100 9
+
+label start_200
+
+sleep_ms 200
+write_digital 1010
+sleep_ms 200
+write_digital 0101
+
+jump_count start_200 9
+
+sleep_match_all 1111
+write_digital 1111
+
+sleep_match_all 0000
+write_digital 0000
