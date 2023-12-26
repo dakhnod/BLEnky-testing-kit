@@ -1,0 +1,3 @@
+[submodule "gpioasm"]
+	path = gpioasm
+	url = https://github.com/dakhnod/gpioASM-compiler-python.git

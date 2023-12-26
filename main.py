@@ -9,6 +9,7 @@ import inspect
 import logging
 import time
 import sys
+import gpioasm
 
 logging.basicConfig(level=logging.INFO)
 logging.StreamHandler.terminator = ''
@@ -282,9 +283,14 @@ async def main():
     gpioLayer.set_outputs((0, 0, 0, 0))
 
     logger = logging.getLogger('gpioASM')
+
+    logger.info('compiling gpioASM code...')
+    payload = gpioasm.Compiler().file_compile('test.gpioasm')
+    print_color('green')
+    print('OK')
+    print_color()
     
     logger.info('uploading gpioASM code...')
-    payload = [128,0,32,232,7,1,85,32,100,1,1,32,100,1,4,32,100,1,16,32,100,1,64,32,100,1,17,32,100,1,68,176,23,9,32,200,1,1,17,32,200,1,1,68,176,34,9,49,85,1,85,49,0,1,0]
     print_color('green')
     print('OK')
     print_color()
@@ -304,6 +310,8 @@ async def main():
 
     logger.info('running tests...')
     print()
+
+    # the following steps are refrelected in the file test.gpioasm
 
     targets = [
         ((1, 0, 0, 0), 100),
