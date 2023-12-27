@@ -285,12 +285,11 @@ async def main():
 
     logger = logging.getLogger('gpioASM')
 
-    logger.info('compiling gpioASM code...')
+    logger.info('compiling gpioASM code (https://github.com/dakhnod/BLEnky-testing-kit/blob/main/test.gpioasm)...')
     payload = gpioasm.Compiler().file_compile('test.gpioasm')
     print_color_str('OK')
     
     logger.info('uploading gpioASM code...')
-    print_color_str('OK')
 
     index = 0
     while len(payload) > 19:
@@ -298,6 +297,7 @@ async def main():
         index += 1
         payload = payload[19:]
     await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [index] + payload)
+    print_color_str('OK')
 
     logger.info('synchronizing...')
     time_taken = await test_inputs_delayed((1, 1, 1, 1), 0, 1000)
