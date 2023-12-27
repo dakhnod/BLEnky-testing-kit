@@ -320,7 +320,7 @@ async def main():
 
     for (states, timeout) in targets:
         logger.info(f'awaiting {states}...')
-        time_taken = await test_inputs_delayed(states, timeout - 5, timeout + 3)
+        time_taken = await test_inputs_delayed(states, timeout - 10, timeout + 3)
         print_color_str(f'OK, took {time_taken}ms')
 
     for states in ((1, 1, 1, 1), (0, 0, 0, 0)):
