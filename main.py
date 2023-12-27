@@ -12,7 +12,7 @@ import sys
 import gpioasm
 
 logging.basicConfig(level=logging.INFO)
-logging.StreamHandler.terminator = ''
+# logging.StreamHandler.terminator = ''
 
 
 def print_color(color='reset'):
@@ -27,6 +27,11 @@ def print_color(color='reset'):
         'bold_red': "\x1b[31;1m",
         'reset': "\x1b[0m",
     }[color], end='')
+
+def print_color_str(str, color='green'):
+    print_color(color)
+    print(str)
+    print_color('reset')
 
 class IOLayer(abc.ABC):
     def __init__(self, name):
@@ -103,9 +108,7 @@ class BlenkyLayer(IOLayer):
     async def connect(self):
         self.logger.info('connecting...')
         await self.device.connect()
-        print_color('green')
-        print('OK')
-        print_color()
+        print_color_str('OK')
 
     def _encode_outputs(self, outputs):
         data = [0xff] * math.ceil(len(outputs) / 4)
@@ -192,9 +195,7 @@ class Tester():
                     try:
                         self.logger.info(f'testing signals {signals}, {layers[0].name} -> {layers[1].name}...')
                         await self.test_signals(layers, signals)
-                        print_color('green')
-                        print('OK')
-                        print_color()
+                        print_color_str('OK')
                         test_count[0] += 1
                     except self.TestFailedError as e:
                         print()
@@ -212,9 +213,7 @@ class Tester():
                         try:
                             self.logger.info(f'testing signal index {index}: {signal}, {layers[0].name} -> {layers[1].name}...')
                             await self.test_signal(layers, index, signal)
-                            print_color('green')
-                            print('OK')
-                            print_color()
+                            print_color_str('OK')
                             test_count[0] += 1
                         except self.TestFailedError as e:
                             print()
@@ -286,14 +285,10 @@ async def main():
 
     logger.info('compiling gpioASM code...')
     payload = gpioasm.Compiler().file_compile('test.gpioasm')
-    print_color('green')
-    print('OK')
-    print_color()
+    print_color_str('OK')
     
     logger.info('uploading gpioASM code...')
-    print_color('green')
-    print('OK')
-    print_color()
+    print_color_str('OK')
 
     index = 0
     while len(payload) > 19:
@@ -304,9 +299,7 @@ async def main():
 
     logger.info('synchronizing...')
     time_taken = await test_inputs_delayed((1, 1, 1, 1), 0, 1000)
-    print_color('green')
-    print('OK')
-    print_color()
+    print_color_str('OK')
 
     logger.info('running tests...')
     print()
@@ -328,9 +321,7 @@ async def main():
     for (states, timeout) in targets:
         logger.info(f'awaiting {states}...')
         time_taken = await test_inputs_delayed(states, timeout - 5, timeout + 3)
-        print_color('green')
-        print(f'OK, took {time_taken}ms')
-        print_color()
+        print_color_str(f'OK, took {time_taken}ms')
 
     for states in ((1, 1, 1, 1), (0, 0, 0, 0)):
         logger.info('waiting for outputs to stay constant...')
@@ -338,15 +329,11 @@ async def main():
             await test_inputs_delayed(states, 0, 5000)
             raise RuntimeError('gpioASM engine did not wait at sleep_match_all command...')
         except TimeoutError:
-            print_color('green')
-            print('OK')
-            print_color()
+            print_color_str('OK')
         logger.info('triggering sleep_match_all command by setting outputs...')
         gpioLayer.set_outputs(states)
         time_taken = await test_inputs_delayed(states, 0, 5)
-        print_color('green')
-        print(f'OK, took {time_taken}ms to react')
-        print_color()
+        print_color_str(f'OK, took {time_taken}ms to react')
     print_color('green')
     logger.info('gpioASM script fully run and traced.')
     print_color()
