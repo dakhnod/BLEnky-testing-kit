@@ -256,6 +256,8 @@ async def main():
     parser.add_argument('--output-pin', '-o', type=int, required=True, help='One or multiple output pins on the PI connected to the uC', nargs='+')
     args = parser.parse_args()
 
+    atexit.register(gpio.cleanup)
+
     gpioLayer = RPIGPIOLayer(args.input_pin, args.output_pin)
     bleLayer = BlenkyLayer(args.address)
 
