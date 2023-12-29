@@ -9,7 +9,7 @@ import inspect
 import logging
 import time
 import sys
-import gpioasm
+from gpioasm import gpioasm
 
 logging.basicConfig(level=logging.INFO)
 # logging.StreamHandler.terminator = ''
