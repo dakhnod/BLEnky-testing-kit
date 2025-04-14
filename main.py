@@ -82,7 +82,7 @@ class RPIGPIOLayer(IOLayer):
 class BlenkyLayer(IOLayer):
     def __init__(self, address):
         super().__init__('BLE')
-        self.device = bleak.BleakClient(address)
+        self.device = bleak.BleakClient(address, timeout=30)
         self.ble_input_future = None
         self.logger = logging.getLogger('BLE')
         self.logger.addHandler(logging.StreamHandler())
