@@ -294,7 +294,10 @@ async def main():
 
         index = 0
         while len(payload) > 0:
-            await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [(0b10000000 | index)] + payload[:19])
+            status_byte = 0x00
+            if(len(payload) > 19):
+                status_byte = 0b10000000
+            await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [(status_byte | index)] + payload[:19])
             index += 1
             payload = payload[19:]
         print_color_str('OK')
@@ -341,7 +344,7 @@ async def main():
     print_color('green')
     logger.info('gpioASM script fully run and traced.')
     print_color()
-    await upload_gpioasm_file('led_run.gpioasm')
+    await upload_gpioasm_file('led_demo.gpioasm')
     print()
 
 if __name__ == '__main__':
