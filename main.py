@@ -193,7 +193,8 @@ class Tester():
             for layers in (self.layers, self.layers[::-1]):
                 for signals in signals_list:
                     try:
-                        self.logger.info(f'testing signals {signals}, {layers[0].name} -> {layers[1].name}...')
+                        signals_formated = tuple('●' if s else '○' for s in signals)
+                        self.logger.info(f'testing signals {signals_formated}, {layers[0].name} -> {layers[1].name}...')
                         await self.test_signals(layers, signals)
                         print_color_str('OK')
                         test_count[0] += 1
@@ -326,7 +327,8 @@ async def main():
             targets.append(((0, 1, 0, 1), timeout))
 
     for (states, timeout) in targets:
-        logger.info(f'awaiting {states}...')
+        signals_formated = tuple('●' if s else '○' for s in states)
+        logger.info(f'awaiting {signals_formated}...')
         time_taken = await test_inputs_delayed(states, timeout - 10, timeout + 3)
         print_color_str(f'OK, took {time_taken}ms')
 
