@@ -212,7 +212,7 @@ class Tester():
                 for signal in (1, 0):
                     for index in range(4):
                         try:
-                            self.logger.info(f'testing signal index {index}: {signal}, {layers[0].name} -> {layers[1].name}...')
+                            self.logger.info(f'testing signal index {index}: {"●" if signal else "○"}, {layers[0].name} -> {layers[1].name}...')
                             await self.test_signal(layers, index, signal)
                             print_color_str('OK')
                             test_count[0] += 1
