@@ -1,0 +1,12 @@
+label start
+
+write_digital 0001
+sleep_ms 100
+write_digital 0010
+sleep_ms 100
+write_digital 0100
+sleep_ms 100
+write_digital 1000
+sleep_ms 100
+
+jump_start

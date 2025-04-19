@@ -285,19 +285,21 @@ async def main():
 
     logger = logging.getLogger('gpioASM')
 
-    logger.info('compiling gpioASM code (https://github.com/dakhnod/BLEnky-testing-kit/blob/main/test.gpioasm)...')
-    payload = gpioasm.Compiler().file_compile('test.gpioasm')
-    print_color_str('OK')
-    
-    logger.info('uploading gpioASM code...')
+    async def upload_gpioasm_file(filename):
+        logger.info('compiling gpioASM code (https://github.com/dakhnod/BLEnky-testing-kit/blob/main/test.gpioasm)...')
+        payload = gpioasm.Compiler().file_compile(filename)
+        print_color_str('OK')
+        
+        logger.info('uploading gpioASM code...')
 
-    index = 0
-    while len(payload) > 19:
-        await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [(0b10000000 | index)] + payload[:19])
-        index += 1
-        payload = payload[19:]
-    await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [index] + payload)
-    print_color_str('OK')
+        index = 0
+        while len(payload) > 0:
+            await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', [(0b10000000 | index)] + payload[:19])
+            index += 1
+            payload = payload[19:]
+        print_color_str('OK')
+
+    await upload_gpioasm_file('test.gpioasm')
 
     logger.info('synchronizing...')
     time_taken = await test_inputs_delayed((1, 1, 1, 1), 0, 1000)
@@ -339,6 +341,7 @@ async def main():
     print_color('green')
     logger.info('gpioASM script fully run and traced.')
     print_color()
+    await upload_gpioasm_file('led_run.gpioasm')
     print()
 
 if __name__ == '__main__':
