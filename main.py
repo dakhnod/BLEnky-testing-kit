@@ -264,6 +264,10 @@ async def main():
 
     tester = Tester(gpioLayer, bleLayer)
     await tester.init()
+
+    # stop gpioASM engine by sending empty code
+    await bleLayer.device.write_gatt_char('b1190001-2a74-d5a2-784f-c1cdb3862ab0', (0x00, 0x80, 0x00))
+
     await tester.run()
 
     async def test_inputs_delayed(target_states, timeout_min_ms, timeout_max_ms):
