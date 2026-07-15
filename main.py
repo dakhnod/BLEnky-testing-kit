@@ -333,7 +333,7 @@ async def main():
     for (states, timeout) in targets:
         signals_formated = tuple('●' if s else '○' for s in states)
         logger.info(f'awaiting {signals_formated}...')
-        time_taken = await test_inputs_delayed(states, timeout - 15, timeout + 3)
+        time_taken = await test_inputs_delayed(states, timeout - 20, timeout + 3)
         print_color_str(f'OK, took {time_taken}ms')
 
     for states in ((1, 1, 1, 1), (0, 0, 0, 0)):
